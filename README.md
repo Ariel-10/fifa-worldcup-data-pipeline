@@ -1,6 +1,6 @@
 # ⚽ FIFA World Cup Data Pipeline
 
-> An end-to-end data engineering project that ingests, processes, and visualizes FIFA World Cup historical data (1930–2018).
+> An end-to-end data engineering project that ingests, processes and visualizes FIFA World Cup historical data (1930–2018).
 
 ![Pipeline](https://img.shields.io/badge/pipeline-end--to--end-blue)
 ![Docker](https://img.shields.io/badge/docker-compose-2496ED?logo=docker&logoColor=white)
@@ -12,9 +12,9 @@
 
 ## 📌 Problem Statement
 
-Modern organizations receive data from multiple sources in different formats, but lack automated pipelines to reliably ingest, store, transform, and visualize that data.
+Modern organizations receive data from multiple sources in different formats, but lack automated pipelines to reliably ingest, store, transform and visualize that data.
 
-This project solves that problem by building a **complete data pipeline** that takes raw FIFA World Cup data and turns it into meaningful insights through an interactive dashboard — with full automation, reproducibility, and clear documentation.
+This project solves that problem by building a **complete data pipeline** that takes raw FIFA World Cup data and turns it into meaningful insights through an interactive dashboard with full automation, reproducibility and clear documentation.
 
 ---
 
@@ -57,7 +57,7 @@ Raw CSVs (Kaggle)
 | **Python** | Data ingestion scripts | Flexible, industry standard |
 | **Docker + Compose** | Containerization | Reproducible environment |
 | **MinIO** | Data Lake (local GCS alternative) | S3-compatible, runs locally |
-| **PostgreSQL** | Data Warehouse | Reliable, already used in module 1 |
+| **PostgreSQL** | Data Warehouse | Reliable |
 | **dbt** | Data transformations | Industry standard for SQL transformations |
 | **Kestra** | Pipeline orchestration | Modern, simple, visual |
 | **Streamlit** | Dashboard | Fast to build, Python-native |
