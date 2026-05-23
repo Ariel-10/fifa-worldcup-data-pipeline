@@ -1,0 +1,46 @@
+version: "3.8"
+
+services:
+  # DATA LAKE
+  minio:
+    image: minio/minio
+    ports:
+      - "9000:9000" # API
+      - "9001:9001" # WEB INTERFACE 
+    environment:
+      MINIO_ROOT_USER: root
+      MINIO_ROOT_PASSWORD: rootroot # 8 characters minimum
+    command: server /data --console-address ":9001"
+    volumes:
+      - fifa_minio_data:/data
+
+  # DATA WAREHOUSE
+  postgres:
+    image: postgres:15
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: fifa_dw
+    volumes:
+      - fifa_postgres_data:/var/lib/postgresql/data
+
+  # ORQUESTRATION
+  kestra:
+    image: kestra/kestra:latest
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+    environment:
+      KESTRA_CONFIGURATION: |
+        datasources:
+          postgres:
+            url: jdbc:postgresql://postgres:5432/fifa_dw
+            username: root
+            password: root
+
+volumes:
+  fifa_minio_data:
+  fifa_postgres_data:

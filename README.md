@@ -140,7 +140,7 @@ docker compose up
 
 - [x] Project structure defined
 - [x] Dataset selected
-- [ ] Docker Compose with MinIO + PostgreSQL + Kestra
+- [x] Docker Compose with MinIO + PostgreSQL + Kestra
 - [ ] Python ingestion script
 - [ ] PostgreSQL warehouse tables
 - [ ] dbt transformation models
