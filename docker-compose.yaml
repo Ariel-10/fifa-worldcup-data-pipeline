@@ -42,19 +42,19 @@ services:
       KESTRA_CONFIGURATION: |
         datasources:
           postgres:
-            url: jdbc:postgresql://postgres:5432/fifa_dw  # service name
-            driver-class-name: org.postgresql.Driver       # not H2
+            url: jdbc:postgresql://postgres:5432/fifa_dw  
+            driver-class-name: org.postgresql.Driver 
             username: root
             password: root
         kestra:
           repository:
-            type: postgres   # not H2
+            type: postgres
           storage:
             type: local
             local:
               base-path: /app/storage
           queue:
-            type: postgres   # not H2
+            type: postgres
           tasks:
             tmp-dir:
               path: /tmp/kestra-wd/tmp
