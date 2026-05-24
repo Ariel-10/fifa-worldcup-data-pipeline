@@ -4,7 +4,8 @@
 
 ![Pipeline](https://img.shields.io/badge/pipeline-end--to--end-blue)
 ![Docker](https://img.shields.io/badge/docker-compose-2496ED?logo=docker&logoColor=white)
-![Python](https://img.shields.io/badge/python-3.11-3776AB?logo=python&logoColor=white)
+![Python](https://img.shields.io/badge/python-3.14-3776AB?logo=python&logoColor=white)
+![uv](https://img.shields.io/badge/uv-package%20manager-DE5FE9?logo=python&logoColor=white)
 ![dbt](https://img.shields.io/badge/dbt-transform-FF694B?logo=dbt&logoColor=white)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
@@ -14,7 +15,7 @@
 
 Modern organizations receive data from multiple sources in different formats, but lack automated pipelines to reliably ingest, store, transform and visualize that data.
 
-This project solves that problem by building a **complete data pipeline** that takes raw FIFA World Cup data and turns it into meaningful insights through an interactive dashboard with full automation, reproducibility and clear documentation.
+This project solves that problem by building a **complete data pipeline** that takes raw FIFA World Cup data and turns it into meaningful insights through an interactive dashboard — with full automation, reproducibility and clear documentation.
 
 ---
 
@@ -54,15 +55,16 @@ Raw CSVs (Kaggle)
 
 | Tool | Purpose | Why |
 |---|---|---|
-| **Python** | Data ingestion scripts | Flexible, industry standard |
+| **Python 3.14** | Data ingestion scripts | Flexible, industry standard |
+| **uv** | Package & environment manager | Modern replacement for pip + venv |
 | **Docker + Compose** | Containerization | Reproducible environment |
 | **MinIO** | Data Lake (local GCS alternative) | S3-compatible, runs locally |
-| **PostgreSQL** | Data Warehouse | Reliable |
+| **PostgreSQL 16** | Data Warehouse | Reliable, battle-tested |
 | **dbt** | Data transformations | Industry standard for SQL transformations |
-| **Kestra** | Pipeline orchestration | Modern, simple, visual |
+| **Kestra** | Pipeline orchestration | Modern, visual, 1000+ plugins |
 | **Streamlit** | Dashboard | Fast to build, Python-native |
 
-> 💡 This project is designed to be cloud-ready. MinIO can be replaced with **Google Cloud Storage** and PostgreSQL with **BigQuery** with minimal configuration changes.
+> 💡 This project is designed to be cloud-ready. MinIO → **Google Cloud Storage** and PostgreSQL → **BigQuery** with minimal configuration changes.
 
 ---
 
@@ -72,10 +74,10 @@ Raw CSVs (Kaggle)
 
 Two CSV files covering every World Cup from **Uruguay 1930** to **Russia 2018**:
 
-| File | Description |
-|---|---|
-| `wcmatches.csv` | Every match played — teams, scores, stages, dates, outcomes |
-| `worldcups.csv` | Summary per tournament — winner, goals, attendance, teams |
+| File | Rows | Description |
+|---|---|---|
+| `wcmatches.csv` | 900+ | Every match played — teams, scores, stages, dates, outcomes |
+| `worldcups.csv` | 21 | Summary per tournament — winner, goals, attendance, teams |
 
 > ⚠️ Data files are not included in this repository. Download them from Kaggle and place them in `data/raw/`.
 
@@ -91,12 +93,14 @@ fifa-worldcup-data-pipeline/
 │   └── processed/           ← Transformed data
 │
 ├── ingestion/               ← Python scripts to load data into MinIO
+│   └── ingest.py            ← Uploads raw CSVs to MinIO Data Lake
 ├── orchestration/           ← Kestra pipeline configuration
 ├── warehouse/               ← SQL scripts to create PostgreSQL tables
 ├── transform/               ← dbt models and transformations
 ├── dashboard/               ← Streamlit dashboard code
 │
-├── docker-compose.yaml      ← Spins up all services
+├── docker-compose.yaml      ← Spins up MinIO + PostgreSQL + Kestra
+├── pyproject.toml           ← Python dependencies managed with uv
 ├── .gitignore
 ├── README.md
 └── LICENSE
@@ -106,27 +110,34 @@ fifa-worldcup-data-pipeline/
 
 ## 🚀 How to Run
 
-> Instructions will be added as each module is built.
-
 ### Prerequisites
-- Docker Desktop installed
-- Python 3.11+
-- dbt Core installed
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed
+- [Python 3.14+](https://www.python.org/downloads/) installed
+- [uv](https://docs.astral.sh/uv/) installed
+- dbt Core installed *(coming soon)*
 
 ### Steps
+
 ```bash
 # 1. Clone the repository
 git clone https://github.com/Ariel-10/fifa-worldcup-data-pipeline.git
 cd fifa-worldcup-data-pipeline
 
-# 2. Download the dataset from Kaggle and place CSVs in data/raw/
+# 2. Install dependencies
+uv sync
 
-# 3. Start all services
+# 3. Download the dataset from Kaggle and place CSVs in data/raw/
+
+# 4. Start all services
 docker compose up
 
-# 4. Run ingestion
-# (instructions coming soon)
+# 5. Run ingestion — uploads CSVs to MinIO Data Lake
+uv run ingestion/ingest.py
 ```
+
+After running, verify the data at:
+- **MinIO UI:** http://localhost:9001 — user: `root` / password: `rootroot`
+- **Kestra UI:** http://localhost:8080
 
 ---
 
@@ -141,7 +152,7 @@ docker compose up
 - [x] Project structure defined
 - [x] Dataset selected
 - [x] Docker Compose with MinIO + PostgreSQL + Kestra
-- [ ] Python ingestion script
+- [x] Python ingestion script — CSVs uploaded to MinIO
 - [ ] PostgreSQL warehouse tables
 - [ ] dbt transformation models
 - [ ] Streamlit dashboard
