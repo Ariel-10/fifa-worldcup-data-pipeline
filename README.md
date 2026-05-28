@@ -63,6 +63,7 @@ Raw CSVs (Kaggle)
 | **dbt** | Data transformations | Industry standard for SQL transformations |
 | **Kestra** | Pipeline orchestration | Modern, visual, 1000+ plugins |
 | **Streamlit** | Dashboard | Fast to build, Python-native |
+| **pgAdmin 4** | Database UI | Visual interface for PostgreSQL |
 
 > 💡 This project is designed to be cloud-ready. MinIO → **Google Cloud Storage** and PostgreSQL → **BigQuery** with minimal configuration changes.
 
@@ -92,14 +93,15 @@ fifa-worldcup-data-pipeline/
 │   ├── raw/                 ← Downloaded CSVs go here (not tracked by git)
 │   └── processed/           ← Transformed data
 │
-├── ingestion/               ← Python scripts to load data into MinIO
+├── ingestion/
 │   └── ingest.py            ← Uploads raw CSVs to MinIO Data Lake
+├── warehouse/
+│   └── load.py              ← Creates tables and loads data from MinIO into PostgreSQL
 ├── orchestration/           ← Kestra pipeline configuration
-├── warehouse/               ← SQL scripts to create PostgreSQL tables
 ├── transform/               ← dbt models and transformations
 ├── dashboard/               ← Streamlit dashboard code
 │
-├── docker-compose.yaml      ← Spins up MinIO + PostgreSQL + Kestra
+├── docker-compose.yaml      ← Spins up MinIO + PostgreSQL + Kestra + pgAdmin
 ├── pyproject.toml           ← Python dependencies managed with uv
 ├── .gitignore
 ├── README.md
@@ -114,7 +116,6 @@ fifa-worldcup-data-pipeline/
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed
 - [Python 3.14+](https://www.python.org/downloads/) installed
 - [uv](https://docs.astral.sh/uv/) installed
-- dbt Core installed *(coming soon)*
 
 ### Steps
 
@@ -133,11 +134,15 @@ docker compose up
 
 # 5. Run ingestion — uploads CSVs to MinIO Data Lake
 uv run ingestion/ingest.py
+
+# 6. Run warehouse load — creates tables and loads data into PostgreSQL
+uv run warehouse/load.py
 ```
 
 After running, verify the data at:
 - **MinIO UI:** http://localhost:9001 — user: `root` / password: `rootroot`
 - **Kestra UI:** http://localhost:8080
+- **pgAdmin:** http://localhost:5050 — email: `admin@admin.com` / password: `root`
 
 ---
 
@@ -151,9 +156,9 @@ After running, verify the data at:
 
 - [x] Project structure defined
 - [x] Dataset selected
-- [x] Docker Compose with MinIO + PostgreSQL + Kestra
+- [x] Docker Compose with MinIO + PostgreSQL + Kestra + pgAdmin
 - [x] Python ingestion script — CSVs uploaded to MinIO
-- [ ] PostgreSQL warehouse tables
+- [x] PostgreSQL warehouse tables — `raw_worldcups` and `raw_matches` loaded
 - [ ] dbt transformation models
 - [ ] Streamlit dashboard
 - [ ] Full orchestration with Kestra

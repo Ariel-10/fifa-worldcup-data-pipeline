@@ -7,4 +7,5 @@ requires-python = ">=3.14"
 dependencies = [
     "minio>=7.2.20",
     "pandas>=3.0.3",
+    "psycopg2-binary>=2.9.12",
 ]
