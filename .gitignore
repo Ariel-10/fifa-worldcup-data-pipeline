@@ -222,3 +222,6 @@ data/processed/*.csv
 
 # Virtual Environments
 .venv/
+
+# User-specific configuration files
+**/.user.yml
