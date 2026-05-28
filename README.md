@@ -6,14 +6,14 @@
 ![Docker](https://img.shields.io/badge/docker-compose-2496ED?logo=docker&logoColor=white)
 ![Python](https://img.shields.io/badge/python-3.14-3776AB?logo=python&logoColor=white)
 ![uv](https://img.shields.io/badge/uv-package%20manager-DE5FE9?logo=python&logoColor=white)
-![dbt](https://img.shields.io/badge/dbt-transform-FF694B?logo=dbt&logoColor=white)
+![dbt](https://img.shields.io/badge/dbt-1.11-FF694B?logo=dbt&logoColor=white)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
 ---
 
 ## 📌 Problem Statement
 
-Modern organizations receive data from multiple sources in different formats ut lack automated pipelines to reliably ingest, store, transform and visualize that data.
+Modern organizations receive data from multiple sources in different formats, but lack automated pipelines to reliably ingest, store, transform and visualize that data.
 
 This project solves that problem by building a **complete data pipeline** that takes raw FIFA World Cup data and turns it into meaningful insights through an interactive dashboard — with full automation, reproducibility and clear documentation.
 
@@ -42,7 +42,7 @@ Raw CSVs (Kaggle)
       ↓
   PostgreSQL — Data Warehouse (structured tables)
       ↓
-  dbt — Transformations (clean models + metrics)
+  dbt — Transformations (staging + fact models)
       ↓
   Streamlit — Dashboard (visualizations)
       ↑
@@ -53,19 +53,19 @@ Raw CSVs (Kaggle)
 
 ## 🛠️ Tech Stack
 
-| Tool | Purpose | Why |
-|---|---|---|
-| **Python 3.14** | Data ingestion scripts | Flexible, industry standard |
-| **uv** | Package & environment manager | Modern replacement for pip + venv |
-| **Docker + Compose** | Containerization | Reproducible environment |
-| **MinIO** | Data Lake (local GCS alternative) | S3-compatible, runs locally |
-| **PostgreSQL 16** | Data Warehouse | Reliable, battle-tested |
-| **dbt** | Data transformations | Industry standard for SQL transformations |
-| **Kestra** | Pipeline orchestration | Modern, visual, 1000+ plugins |
-| **Streamlit** | Dashboard | Fast to build, Python-native |
-| **pgAdmin 4** | Database UI | Visual interface for PostgreSQL |
+| Tool | Purpose | Local | GCP Equivalent |
+|---|---|---|---|
+| **Python 3.14** | Data ingestion scripts | ✅ | ✅ |
+| **uv** | Package & environment manager | ✅ | ✅ |
+| **Docker + Compose** | Containerization | ✅ | Cloud Run |
+| **MinIO** | Data Lake | ✅ | Google Cloud Storage |
+| **PostgreSQL 16** | Data Warehouse | ✅ | BigQuery |
+| **dbt Core 1.11** | Data transformations | ✅ (postgres) | dbt + BigQuery |
+| **Kestra** | Pipeline orchestration | ✅ | Kestra / Cloud Composer |
+| **Streamlit** | Dashboard | ✅ | Cloud Run |
+| **pgAdmin 4** | Database UI | ✅ | — |
 
-> 💡 This project is designed to be cloud-ready. MinIO → **Google Cloud Storage** and PostgreSQL → **BigQuery** with minimal configuration changes.
+> 💡 This project is designed to be cloud-ready. Each local tool maps directly to a GCP equivalent with minimal configuration changes.
 
 ---
 
@@ -90,19 +90,29 @@ Two CSV files covering every World Cup from **Uruguay 1930** to **Russia 2018**:
 fifa-worldcup-data-pipeline/
 │
 ├── data/
-│   ├── raw/                 ← Downloaded CSVs go here (not tracked by git)
-│   └── processed/           ← Transformed data
+│   ├── raw/                       ← Downloaded CSVs (not tracked by git)
+│   └── processed/                 ← Transformed data
 │
 ├── ingestion/
-│   └── ingest.py            ← Uploads raw CSVs to MinIO Data Lake
-├── warehouse/
-│   └── load.py              ← Creates tables and loads data from MinIO into PostgreSQL
-├── orchestration/           ← Kestra pipeline configuration
-├── transform/               ← dbt models and transformations
-├── dashboard/               ← Streamlit dashboard code
+│   └── ingest.py                  ← Uploads raw CSVs to MinIO Data Lake
 │
-├── docker-compose.yaml      ← Spins up MinIO + PostgreSQL + Kestra + pgAdmin
-├── pyproject.toml           ← Python dependencies managed with uv
+├── warehouse/
+│   └── load.py                    ← Creates tables and loads data into PostgreSQL
+│
+├── transform/
+│   ├── Dockerfile                 ← dbt container (Python 3.12 + dbt-postgres)
+│   ├── profiles.yml               ← dbt connection config (local: postgres)
+│   └── fifa_pipeline/             ← dbt project
+│       ├── models/                ← SQL transformation models (stg + fct)
+│       ├── tests/                 ← Data quality tests
+│       ├── macros/                ← Reusable SQL macros
+│       └── dbt_project.yml        ← dbt project config
+│
+├── orchestration/                 ← Kestra pipeline configuration
+├── dashboard/                     ← Streamlit dashboard
+│
+├── docker-compose.yaml            ← All services: MinIO, PostgreSQL, Kestra, pgAdmin, dbt
+├── pyproject.toml                 ← Python dependencies (uv)
 ├── .gitignore
 ├── README.md
 └── LICENSE
@@ -130,19 +140,25 @@ uv sync
 # 3. Download the dataset from Kaggle and place CSVs in data/raw/
 
 # 4. Start all services
-docker compose up
+docker compose up -d
 
 # 5. Run ingestion — uploads CSVs to MinIO Data Lake
 uv run ingestion/ingest.py
 
 # 6. Run warehouse load — creates tables and loads data into PostgreSQL
 uv run warehouse/load.py
+
+# 7. Run dbt transformations
+docker compose run dbt dbt run --project-dir fifa_pipeline
 ```
 
-After running, verify the data at:
-- **MinIO UI:** http://localhost:9001 — user: `root` / password: `rootroot`
-- **Kestra UI:** http://localhost:8080
-- **pgAdmin:** http://localhost:5050 — email: `admin@admin.com` / password: `root`
+### Services
+
+| Service | URL | Credentials |
+|---|---|---|
+| MinIO UI | http://localhost:9001 | user: `root` / pass: `rootroot` |
+| Kestra UI | http://localhost:8080 | set on first login |
+| pgAdmin | http://localhost:5050 | email: `admin@admin.com` / pass: `root` |
 
 ---
 
@@ -156,10 +172,11 @@ After running, verify the data at:
 
 - [x] Project structure defined
 - [x] Dataset selected
-- [x] Docker Compose with MinIO + PostgreSQL + Kestra + pgAdmin
+- [x] Docker Compose — MinIO + PostgreSQL + Kestra + pgAdmin + dbt
 - [x] Python ingestion script — CSVs uploaded to MinIO
 - [x] PostgreSQL warehouse tables — `raw_worldcups` and `raw_matches` loaded
-- [ ] dbt transformation models
+- [x] dbt project initialized — connected to PostgreSQL
+- [ ] dbt transformation models (stg + fct)
 - [ ] Streamlit dashboard
 - [ ] Full orchestration with Kestra
 - [ ] README final documentation

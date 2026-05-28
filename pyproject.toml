@@ -5,6 +5,8 @@ description = "End-to-end data pipeline for FIFA World Cup historical data (1930
 readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [
+    "dbt-core>=1.11.11",
+    "dbt-postgres>=1.10.0",
     "minio>=7.2.20",
     "pandas>=3.0.3",
     "psycopg2-binary>=2.9.12",

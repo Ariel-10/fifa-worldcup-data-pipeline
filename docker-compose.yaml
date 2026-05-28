@@ -70,6 +70,20 @@ services:
     depends_on:
       - postgres
 
+  # TRANSFORMATIONS — on-demand only (profiles: dbt)
+  # GCP equivalent: dbt + Cloud Composer / Kestra
+  dbt:
+    build: ./transform  # builds from transform/Dockerfile
+    volumes:
+      - ./transform:/usr/app/dbt
+    working_dir: /usr/app/dbt
+    depends_on:
+      - postgres
+    environment:
+      DBT_PROFILES_DIR: /usr/app/dbt
+    profiles:
+      - dbt  # run with: docker compose run dbt <command>
+
 volumes:
   fifa_minio_data:
   fifa_postgres_data:
