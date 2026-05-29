@@ -225,3 +225,6 @@ data/processed/*.csv
 
 # User-specific configuration files
 **/.user.yml
+
+# dbt
+transform/fifa_pipeline/logs/

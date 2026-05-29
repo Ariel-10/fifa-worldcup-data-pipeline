@@ -1,0 +1,9 @@
+version: 2
+
+sources:
+  - name: fifa
+    database: fifa_dw
+    schema: public
+    tables:
+      - name: raw_worldcups
+      - name: raw_matches

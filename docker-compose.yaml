@@ -81,6 +81,8 @@ services:
       - postgres
     environment:
       DBT_PROFILES_DIR: /usr/app/dbt
+    ports:
+      - "8081:8081"  # dbt docs UI
     profiles:
       - dbt  # run with: docker compose run dbt <command>
 
