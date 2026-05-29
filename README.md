@@ -101,9 +101,11 @@ fifa-worldcup-data-pipeline/
 │
 ├── transform/
 │   ├── Dockerfile                 ← dbt container (Python 3.12 + dbt-postgres)
-│   ├── profiles.yml               ← dbt connection config (local: postgres)
+│   ├── profiles.yml               ← dbt connection config (local: postgres / GCP: bigquery)
 │   └── fifa_pipeline/             ← dbt project
-│       ├── models/                ← SQL transformation models (stg + fct)
+│       ├── models/
+│       │   ├── staging/           ← stg_matches, stg_worldcups (views — clean raw data)
+│       │   └── facts/             ← fct_matches (table — enriched, ready for dashboard)
 │       ├── tests/                 ← Data quality tests
 │       ├── macros/                ← Reusable SQL macros
 │       └── dbt_project.yml        ← dbt project config
@@ -148,8 +150,15 @@ uv run ingestion/ingest.py
 # 6. Run warehouse load — creates tables and loads data into PostgreSQL
 uv run warehouse/load.py
 
-# 7. Run dbt transformations
+# 7. Run dbt transformations — creates staging views and fct_matches table
 docker compose run dbt dbt run --project-dir fifa_pipeline
+
+# 8. Run dbt tests — validates data quality
+docker compose run dbt dbt test --project-dir fifa_pipeline
+
+# 9. (Optional) Generate and serve dbt documentation
+docker compose run dbt dbt docs generate --project-dir fifa_pipeline
+docker compose run --service-ports dbt dbt docs serve --project-dir fifa_pipeline --host 0.0.0.0 --port 8081
 ```
 
 ### Services
@@ -159,6 +168,7 @@ docker compose run dbt dbt run --project-dir fifa_pipeline
 | MinIO UI | http://localhost:9001 | user: `root` / pass: `rootroot` |
 | Kestra UI | http://localhost:8080 | set on first login |
 | pgAdmin | http://localhost:5050 | email: `admin@admin.com` / pass: `root` |
+| dbt docs | http://localhost:8081 | no login required |
 
 ---
 
@@ -176,7 +186,9 @@ docker compose run dbt dbt run --project-dir fifa_pipeline
 - [x] Python ingestion script — CSVs uploaded to MinIO
 - [x] PostgreSQL warehouse tables — `raw_worldcups` and `raw_matches` loaded
 - [x] dbt project initialized — connected to PostgreSQL
-- [ ] dbt transformation models (stg + fct)
+- [x] dbt models — `stg_matches`, `stg_worldcups`, `fct_matches`
+- [x] dbt tests — 6 data quality checks passing
+- [x] dbt documentation — auto-generated with lineage, served at localhost:8081
 - [ ] Streamlit dashboard
 - [ ] Full orchestration with Kestra
 - [ ] README final documentation
