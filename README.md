@@ -7,6 +7,7 @@
 ![Python](https://img.shields.io/badge/python-3.14-3776AB?logo=python&logoColor=white)
 ![uv](https://img.shields.io/badge/uv-package%20manager-DE5FE9?logo=python&logoColor=white)
 ![dbt](https://img.shields.io/badge/dbt-1.11-FF694B?logo=dbt&logoColor=white)
+![Streamlit](https://img.shields.io/badge/streamlit-dashboard-FF4B4B?logo=streamlit&logoColor=white)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
 ---
@@ -48,6 +49,8 @@ Raw CSVs (Kaggle)
       ↑
   Kestra — Orchestration (automates all steps)
 ```
+
+> 📸 [Architecture diagram placeholder — see images section below]
 
 ---
 
@@ -110,10 +113,18 @@ fifa-worldcup-data-pipeline/
 │       ├── macros/                ← Reusable SQL macros
 │       └── dbt_project.yml        ← dbt project config
 │
-├── orchestration/                 ← Kestra pipeline configuration
-├── dashboard/                     ← Streamlit dashboard
+├── orchestration/                 ← Kestra pipeline configuration (coming soon)
+├── dashboard/
+│   ├── app.py                     ← Streamlit entry point
+│   ├── Dockerfile                 ← Dashboard container
+│   ├── styles/main.css            ← Global dark theme styles
+│   ├── db/queries.py              ← PostgreSQL connection and queries
+│   └── components/
+│       ├── metrics.py             ← KPI cards
+│       ├── charts.py              ← All chart visualizations
+│       └── explorer.py            ← Interactive match explorer
 │
-├── docker-compose.yaml            ← All services: MinIO, PostgreSQL, Kestra, pgAdmin, dbt
+├── docker-compose.yaml            ← All services: MinIO, PostgreSQL, Kestra, pgAdmin, dbt, Streamlit
 ├── pyproject.toml                 ← Python dependencies (uv)
 ├── .gitignore
 ├── README.md
@@ -156,7 +167,10 @@ docker compose run dbt dbt run --project-dir fifa_pipeline
 # 8. Run dbt tests — validates data quality
 docker compose run dbt dbt test --project-dir fifa_pipeline
 
-# 9. (Optional) Generate and serve dbt documentation
+# 9. Start Streamlit dashboard
+docker compose up streamlit
+
+# 10. (Optional) Generate and serve dbt documentation
 docker compose run dbt dbt docs generate --project-dir fifa_pipeline
 docker compose run --service-ports dbt dbt docs serve --project-dir fifa_pipeline --host 0.0.0.0 --port 8081
 ```
@@ -165,6 +179,7 @@ docker compose run --service-ports dbt dbt docs serve --project-dir fifa_pipelin
 
 | Service | URL | Credentials |
 |---|---|---|
+| **Streamlit Dashboard** | http://localhost:8501 | no login required |
 | MinIO UI | http://localhost:9001 | user: `root` / pass: `rootroot` |
 | Kestra UI | http://localhost:8080 | set on first login |
 | pgAdmin | http://localhost:5050 | email: `admin@admin.com` / pass: `root` |
@@ -172,9 +187,19 @@ docker compose run --service-ports dbt dbt docs serve --project-dir fifa_pipelin
 
 ---
 
-## 📈 Dashboard Previews
+## 📈 Dashboard
 
-> Screenshots will be added once the dashboard is built.
+Interactive dashboard built with Streamlit — reads directly from `fct_matches` in PostgreSQL.
+
+> 📸 [Dashboard screenshot placeholder — see images section below]
+
+**Sections:**
+- **KPI Metrics** — World Cups, Matches, Total Goals, Unique Champions
+- **Titles by Country** — horizontal bar chart of World Cup winners
+- **Goals per World Cup** — line chart showing goal trends over time
+- **Top 10 Teams by Wins** — most successful teams historically
+- **Matches by Stage** — donut chart of match distribution
+- **Match Explorer** — filter by year to explore every match
 
 ---
 
@@ -182,23 +207,25 @@ docker compose run --service-ports dbt dbt docs serve --project-dir fifa_pipelin
 
 - [x] Project structure defined
 - [x] Dataset selected
-- [x] Docker Compose — MinIO + PostgreSQL + Kestra + pgAdmin + dbt
+- [x] Docker Compose — MinIO + PostgreSQL + Kestra + pgAdmin + dbt + Streamlit
 - [x] Python ingestion script — CSVs uploaded to MinIO
 - [x] PostgreSQL warehouse tables — `raw_worldcups` and `raw_matches` loaded
 - [x] dbt project initialized — connected to PostgreSQL
 - [x] dbt models — `stg_matches`, `stg_worldcups`, `fct_matches`
 - [x] dbt tests — 6 data quality checks passing
 - [x] dbt documentation — auto-generated with lineage, served at localhost:8081
-- [ ] Streamlit dashboard
+- [x] Streamlit dashboard — interactive visualizations with dark theme
+- [ ] Data quality fixes — West Germany → Germany, draws handling
 - [ ] Full orchestration with Kestra
-- [ ] README final documentation
+- [ ] GitHub Actions CI/CD
+- [ ] README final documentation with screenshots
 
 ---
 
 ## 👤 Author
 
 **Ariel Ortega**
-Data Engineering Zoomcamp 2026 — Personal Project
+Data Engineering — Personal Portfolio Project
 
 ---
 

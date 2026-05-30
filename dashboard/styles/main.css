@@ -1,0 +1,79 @@
+/* font — Inter from Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
+* { font-family: 'Inter', sans-serif; }
+
+.stApp { background-color: #0a1628; }
+
+/* metric cards */
+[data-testid="stMetric"] {
+    background: #1a1f2e;
+    border: 1px solid #2d6a4f;
+    border-radius: 10px;
+    padding: 1rem;
+}
+
+/* metric value — softer green */
+[data-testid="stMetricValue"] {
+    color: #52b788;
+    font-size: 2rem;
+}
+
+/* subheaders — centered */
+h3 { color: #95d5b2 !important; text-align: center; }
+
+/* divider */
+hr { border-color: #2d6a4f !important; }
+
+/* hero header */
+.hero {
+    background: linear-gradient(135deg, #1a472a 0%, #2d6a4f 50%, #1a472a 100%);
+    padding: 2rem 2.5rem;
+    border-radius: 12px;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.hero h1 { color: white; font-size: 2.8rem; margin: 0; }
+.hero p { color: #95d5b2; font-size: 1.1rem; margin: 0.5rem 0 0 0; }
+
+/* chart card container */
+[data-testid="stPlotlyChart"] {
+    background: #1a1f2e;
+    border: 1px solid #2d6a4f;
+    border-radius: 12px;
+    padding: 1rem;
+}
+
+/* dataframe table */
+[data-testid="stDataFrame"] {
+    border: 1px solid #2d6a4f;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+/* table header */
+[data-testid="stDataFrame"] th {
+    background: #1a472a !important;
+    color: #95d5b2 !important;
+    font-weight: 600;
+}
+
+/* table rows — alternating */
+[data-testid="stDataFrame"] tr:nth-child(even) {
+    background: #1a1f2e !important;
+}
+/* dataframe — match background */
+[data-testid="stDataFrame"] iframe {
+    background-color: #0a1628 !important;
+}
+/* force header color inside the iframe */
+[data-testid="stDataFrame"] iframe {
+    background-color: #0a1628 !important;
+}
+
+[data-testid="stDataFrame"] iframe thead tr th {
+    background-color: #1a472a !important;
+    color: #95d5b2 !important;
+    font-weight: 600 !important;
+}

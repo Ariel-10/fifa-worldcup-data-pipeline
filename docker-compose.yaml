@@ -73,7 +73,7 @@ services:
   # TRANSFORMATIONS — on-demand only (profiles: dbt)
   # GCP equivalent: dbt + Cloud Composer / Kestra
   dbt:
-    build: ./transform  # builds from transform/Dockerfile
+    build: ./transform # builds from transform/Dockerfile
     volumes:
       - ./transform:/usr/app/dbt
     working_dir: /usr/app/dbt
@@ -82,9 +82,23 @@ services:
     environment:
       DBT_PROFILES_DIR: /usr/app/dbt
     ports:
-      - "8081:8081"  # dbt docs UI
+      - "8081:8081" # dbt docs UI
     profiles:
-      - dbt  # run with: docker compose run dbt <command>
+      - dbt # run with: docker compose run dbt <command>
+
+  # DASHBOARD — GCP equivalent: Cloud Run
+  streamlit:
+    build: ./dashboard # builds from dashboard/Dockerfile
+    ports:
+      - "8501:8501" # host:container
+    depends_on:
+      - postgres # waits for postgres
+    environment:
+      DB_HOST: postgres # service name = hostname inside Docker
+      DB_PORT: 5432
+      DB_USER: root
+      DB_PASSWORD: root
+      DB_NAME: fifa_dw
 
 volumes:
   fifa_minio_data:
