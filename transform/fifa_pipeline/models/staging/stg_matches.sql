@@ -14,7 +14,12 @@ select
     home_score + away_score         as total_goals,
     outcome,
     win_conditions,
-    winning_team,
+    -- Normalize draws (NaN) + West Germany → Germany
+    case
+        when outcome = 'D' then 'Draw'
+        when winning_team = 'West Germany' then 'Germany'
+        else winning_team
+    end as winning_team,
     losing_team,
     date,
     month,

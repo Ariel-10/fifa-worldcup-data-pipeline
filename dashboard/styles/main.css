@@ -42,7 +42,7 @@ hr { border-color: #2d6a4f !important; }
     background: #1a1f2e;
     border: 1px solid #2d6a4f;
     border-radius: 12px;
-    padding: 1rem;
+    padding: 0.3rem !important;
 }
 
 /* dataframe table */
@@ -76,4 +76,16 @@ hr { border-color: #2d6a4f !important; }
     background-color: #1a472a !important;
     color: #95d5b2 !important;
     font-weight: 600 !important;
+}
+
+/* force plotly to not overflow */
+[data-testid="stPlotlyChart"] iframe {
+    width: 100% !important;
+    height: 100% !important;
+    overflow: hidden !important;
+}
+
+/* remove weird extra padding Streamlit adds */
+.block-container {
+    padding-top: 1rem !important;
 }

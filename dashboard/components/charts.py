@@ -5,8 +5,11 @@ import plotly.express as px
 LAYOUT = dict(
     paper_bgcolor="rgba(0,0,0,0)",
     plot_bgcolor="rgba(0,0,0,0)",
-    font_color="#ffffff"
+    font_color="#ffffff",
+    autosize=True,
+    margin=dict(l=10, r=10, t=40, b=10) # tight margins - better fit
 )
+
 
 # brand palette — consistent in all charts
 PALETTE = [
@@ -72,7 +75,7 @@ def render_wins_and_stages(df):
         # bar chart — top 10 teams by wins
         st.subheader("🥇 Top 10 Teams by Wins")
         top_teams = (
-            df.dropna(subset=["winning_team"])
+            df[df["winning_team"].notna() & (df["winning_team"] != "Draw")]
             .groupby("winning_team")
             .size()
             .reset_index(name="wins")

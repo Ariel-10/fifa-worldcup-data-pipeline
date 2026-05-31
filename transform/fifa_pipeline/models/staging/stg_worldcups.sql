@@ -5,7 +5,11 @@ with source as (
 select
     year,
     host                            as host_country,
-    winner                          as champion,
+    -- Normalize West Germany → Germany
+    case
+        when winner = 'West Germany' then 'Germany'
+        else winner
+    end                             as champion,
     second                          as runner_up,
     third                           as third_place,
     fourth                          as fourth_place,
