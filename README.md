@@ -29,6 +29,7 @@ Build a production-ready, end-to-end data pipeline that:
 - Transforms data using **dbt**
 - Visualizes insights in an interactive **Dashboard**
 - Orchestrates all steps automatically with **Kestra**
+- Automates testing and deployment with **GitHub Actions**
 
 ---
 
@@ -48,9 +49,11 @@ Raw CSVs (Kaggle)
   Streamlit — Dashboard (visualizations)
       ↑
   Kestra — Orchestration (automates all steps)
+      ↑
+  GitHub Actions — CI/CD (runs on every push)
 ```
 
-> 📸 [Architecture diagram placeholder — see images section below]
+![Architecture](docs/architecture.png)
 
 ---
 
@@ -66,6 +69,7 @@ Raw CSVs (Kaggle)
 | **dbt Core 1.11** | Data transformations | ✅ (postgres) | dbt + BigQuery |
 | **Kestra** | Pipeline orchestration | ✅ | Kestra / Cloud Composer |
 | **Streamlit** | Dashboard | ✅ | Cloud Run |
+| **GitHub Actions** | CI/CD | ✅ | ✅ |
 | **pgAdmin 4** | Database UI | ✅ | — |
 
 > 💡 This project is designed to be cloud-ready. Each local tool maps directly to a GCP equivalent with minimal configuration changes.
@@ -113,7 +117,7 @@ fifa-worldcup-data-pipeline/
 │       ├── macros/                ← Reusable SQL macros
 │       └── dbt_project.yml        ← dbt project config
 │
-├── orchestration/                 ← Kestra pipeline configuration (coming soon)
+├── orchestration/                 ← Kestra pipeline configuration
 ├── dashboard/
 │   ├── app.py                     ← Streamlit entry point
 │   ├── Dockerfile                 ← Dashboard container
@@ -124,6 +128,8 @@ fifa-worldcup-data-pipeline/
 │       ├── charts.py              ← All chart visualizations
 │       └── explorer.py            ← Interactive match explorer
 │
+├── docs/                          ← Screenshots and architecture diagram
+├── .github/workflows/             ← GitHub Actions CI/CD
 ├── docker-compose.yaml            ← All services: MinIO, PostgreSQL, Kestra, pgAdmin, dbt, Streamlit
 ├── pyproject.toml                 ← Python dependencies (uv)
 ├── .gitignore
@@ -191,15 +197,23 @@ docker compose run --service-ports dbt dbt docs serve --project-dir fifa_pipelin
 
 Interactive dashboard built with Streamlit — reads directly from `fct_matches` in PostgreSQL.
 
-> 📸 [Dashboard screenshot placeholder — see images section below]
+### KPI Metrics
+![KPI Metrics](docs/dashboard_metrics.jpg)
 
-**Sections:**
-- **KPI Metrics** — World Cups, Matches, Total Goals, Unique Champions
-- **Titles by Country** — horizontal bar chart of World Cup winners
-- **Goals per World Cup** — line chart showing goal trends over time
-- **Top 10 Teams by Wins** — most successful teams historically
-- **Matches by Stage** — donut chart of match distribution
-- **Match Explorer** — filter by year to explore every match
+### Titles by Country
+![Titles by Country](docs/dashboard_titles.jpg)
+
+### Goals per World Cup
+![Goals per World Cup](docs/dashboard_goals.jpg)
+
+### Top 10 Teams by Wins
+![Top 10 Teams by Wins](docs/dashboard_wins.jpg)
+
+### Matches by Stage
+![Matches by Stage](docs/dashboard_stages.jpg)
+
+### Match Explorer
+![Match Explorer](docs/dashboard_explorer.jpg)
 
 ---
 
@@ -215,7 +229,7 @@ Interactive dashboard built with Streamlit — reads directly from `fct_matches`
 - [x] dbt tests — 6 data quality checks passing
 - [x] dbt documentation — auto-generated with lineage, served at localhost:8081
 - [x] Streamlit dashboard — interactive visualizations with dark theme
-- [ ] Data quality fixes — West Germany → Germany, draws handling
+- [x] Data quality fixes — West Germany → Germany unified, draws handled
 - [ ] Full orchestration with Kestra
 - [ ] GitHub Actions CI/CD
 - [ ] README final documentation with screenshots
