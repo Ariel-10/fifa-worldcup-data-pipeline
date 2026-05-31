@@ -35,25 +35,7 @@ Build a production-ready, end-to-end data pipeline that:
 
 ## 🏗️ Architecture
 
-```
-Raw CSVs (Kaggle)
-      ↓
-  Python Script (ingestion)
-      ↓
-  MinIO — Data Lake (raw storage)
-      ↓
-  PostgreSQL — Data Warehouse (structured tables)
-      ↓
-  dbt — Transformations (staging + fact models)
-      ↓
-  Streamlit — Dashboard (visualizations)
-      ↑
-  Kestra — Orchestration (automates all steps)
-      ↑
-  GitHub Actions — CI/CD (runs on every push)
-```
-
-![Architecture](docs/architecture.png)
+![Architecture](docs/architecture.jpg)
 
 ---
 
