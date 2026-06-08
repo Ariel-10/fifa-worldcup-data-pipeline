@@ -3,11 +3,11 @@ from minio import Minio
 from minio.error import S3Error
 import pandas as pd
 
-# Connection
+# Connection — reads host from env var (defaults localhost)
 client = Minio(
-    "localhost:9000",
-    access_key="root",
-    secret_key="rootroot",
+    f"{os.getenv('MINIO_HOST', 'localhost')}:9000",
+    access_key=os.getenv('MINIO_ACCESS_KEY', 'root'),
+    secret_key=os.getenv('MINIO_SECRET_KEY', 'rootroot'),
     secure=False  # no HTTPS locally
 )
 

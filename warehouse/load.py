@@ -1,22 +1,23 @@
 import io
+import os
 import pandas as pd
 import psycopg2
 from minio import Minio
 
-# Connection to MinIO and PostgreSQL
+# Connection — reads hosts from env vars (defaults localhost)
 client = Minio(
-    "localhost:9000",
-    access_key="root",
-    secret_key="rootroot",
+    f"{os.getenv('MINIO_HOST', 'localhost')}:9000",
+    access_key=os.getenv('MINIO_ACCESS_KEY', 'root'),
+    secret_key=os.getenv('MINIO_SECRET_KEY', 'rootroot'),
     secure=False,
 )
 
 conn = psycopg2.connect(
-    host="localhost",
+    host=os.getenv('POSTGRES_HOST', 'localhost'),
     port=5432,
-    dbname="fifa_dw",
-    user="root",
-    password="root",
+    dbname=os.getenv('POSTGRES_DB', 'fifa_dw'),
+    user=os.getenv('POSTGRES_USER', 'root'),
+    password=os.getenv('POSTGRES_PASSWORD', 'root'),
 )
 cur = conn.cursor()
 
