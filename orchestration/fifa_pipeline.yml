@@ -50,3 +50,8 @@ tasks:
     commands:
       - git clone {{vars.repo_url}} {{vars.project_dir}}  # fetch latest code
       - dbt test --project-dir {{vars.project_dir}}/transform/fifa_pipeline --profiles-dir {{vars.project_dir}}/transform
+triggers:
+  - id: daily_schedule
+    type: io.kestra.plugin.core.trigger.Schedule
+    cron: "0 6 * * *"  # every day at 6am
+    disabled: true  # production = false
