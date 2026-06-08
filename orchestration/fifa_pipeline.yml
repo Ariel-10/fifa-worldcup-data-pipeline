@@ -35,21 +35,26 @@ tasks:
   - id: dbt_run
     type: io.kestra.plugin.scripts.shell.Commands
     docker:
-      image: ghcr.io/dbt-labs/dbt-postgres:1.9.0  # git preinstalled
+      image: python:3.12-slim  # install dbt at runtime
       networkMode: "{{vars.network}}"
     commands:
-      - git clone {{vars.repo_url}} {{vars.project_dir}}  # fetch latest code
-      - dbt run --project-dir {{vars.project_dir}}/transform/fifa_pipeline --profiles-dir {{vars.project_dir}}/transform
+      - apt-get update -q && apt-get install -y git -q
+      - pip install dbt-core dbt-postgres -q
+      - git clone {{vars.repo_url}} {{vars.project_dir}}
+      - cd {{vars.project_dir}} && dbt run --project-dir transform/fifa_pipeline --profiles-dir transform
 
   # STEP 3 — Run dbt tests
   - id: dbt_test
     type: io.kestra.plugin.scripts.shell.Commands
     docker:
-      image: ghcr.io/dbt-labs/dbt-postgres:1.9.0  # git preinstalled
+      image: python:3.12-slim  # install dbt at runtime
       networkMode: "{{vars.network}}"
     commands:
-      - git clone {{vars.repo_url}} {{vars.project_dir}}  # fetch latest code
-      - dbt test --project-dir {{vars.project_dir}}/transform/fifa_pipeline --profiles-dir {{vars.project_dir}}/transform
+      - apt-get update -q && apt-get install -y git -q
+      - pip install dbt-core dbt-postgres -q
+      - git clone {{vars.repo_url}} {{vars.project_dir}}
+      - cd {{vars.project_dir}} && dbt test --project-dir transform/fifa_pipeline --profiles-dir transform
+
 triggers:
   - id: daily_schedule
     type: io.kestra.plugin.core.trigger.Schedule
