@@ -7,6 +7,7 @@
 ![Python](https://img.shields.io/badge/python-3.14-3776AB?logo=python&logoColor=white)
 ![uv](https://img.shields.io/badge/uv-package%20manager-DE5FE9?logo=python&logoColor=white)
 ![dbt](https://img.shields.io/badge/dbt-1.11-FF694B?logo=dbt&logoColor=white)
+![Kestra](https://img.shields.io/badge/kestra-orchestration-7C3AED?logo=kestra&logoColor=white)
 ![Streamlit](https://img.shields.io/badge/streamlit-dashboard-FF4B4B?logo=streamlit&logoColor=white)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
@@ -27,8 +28,8 @@ Build a production-ready, end-to-end data pipeline that:
 - Ingests raw CSV data into a **Data Lake**
 - Loads and structures data in a **Data Warehouse**
 - Transforms data using **dbt**
-- Visualizes insights in an interactive **Dashboard**
 - Orchestrates all steps automatically with **Kestra**
+- Visualizes insights in an interactive **Dashboard**
 - Automates testing and deployment with **GitHub Actions**
 
 ---
@@ -36,6 +37,8 @@ Build a production-ready, end-to-end data pipeline that:
 ## 🏗️ Architecture
 
 ![Architecture](docs/architecture.jpg)
+
+> The local stack is intentionally designed to mirror GCP services — each tool maps directly to a cloud equivalent with minimal configuration changes.
 
 ---
 
@@ -53,8 +56,6 @@ Build a production-ready, end-to-end data pipeline that:
 | **Streamlit** | Dashboard | ✅ | Cloud Run |
 | **GitHub Actions** | CI/CD | ✅ | ✅ |
 | **pgAdmin 4** | Database UI | ✅ | — |
-
-> 💡 This project is designed to be cloud-ready. Each local tool maps directly to a GCP equivalent with minimal configuration changes.
 
 ---
 
@@ -99,7 +100,9 @@ fifa-worldcup-data-pipeline/
 │       ├── macros/                ← Reusable SQL macros
 │       └── dbt_project.yml        ← dbt project config
 │
-├── orchestration/                 ← Kestra pipeline configuration
+├── orchestration/
+│   └── fifa_pipeline.yml          ← Kestra flow — load → dbt run → dbt test
+│
 ├── dashboard/
 │   ├── app.py                     ← Streamlit entry point
 │   ├── Dockerfile                 ← Dashboard container
@@ -143,22 +146,29 @@ uv sync
 # 4. Start all services
 docker compose up -d
 
-# 5. Run ingestion — uploads CSVs to MinIO Data Lake
+# 5. Run ingestion — uploads CSVs to MinIO Data Lake (one-time setup)
 uv run ingestion/ingest.py
 
-# 6. Run warehouse load — creates tables and loads data into PostgreSQL
+# 6. Open Kestra at http://localhost:8080 and trigger the fifa_pipeline flow
+#    This automatically runs: load → dbt run → dbt test
+
+# 7. Start Streamlit dashboard
+docker compose up streamlit
+```
+
+### Optional — Manual steps (without Kestra)
+
+```bash
+# Run warehouse load
 uv run warehouse/load.py
 
-# 7. Run dbt transformations — creates staging views and fct_matches table
+# Run dbt transformations
 docker compose run dbt dbt run --project-dir fifa_pipeline
 
-# 8. Run dbt tests — validates data quality
+# Run dbt tests
 docker compose run dbt dbt test --project-dir fifa_pipeline
 
-# 9. Start Streamlit dashboard
-docker compose up streamlit
-
-# 10. (Optional) Generate and serve dbt documentation
+# Generate and serve dbt documentation
 docker compose run dbt dbt docs generate --project-dir fifa_pipeline
 docker compose run --service-ports dbt dbt docs serve --project-dir fifa_pipeline --host 0.0.0.0 --port 8081
 ```
@@ -168,10 +178,40 @@ docker compose run --service-ports dbt dbt docs serve --project-dir fifa_pipelin
 | Service | URL | Credentials |
 |---|---|---|
 | **Streamlit Dashboard** | http://localhost:8501 | no login required |
+| **Kestra UI** | http://localhost:8080 | set on first login |
 | MinIO UI | http://localhost:9001 | user: `root` / pass: `rootroot` |
-| Kestra UI | http://localhost:8080 | set on first login |
 | pgAdmin | http://localhost:5050 | email: `admin@admin.com` / pass: `root` |
 | dbt docs | http://localhost:8081 | no login required |
+
+---
+
+## ⚙️ Orchestration
+
+The pipeline is fully orchestrated with **Kestra**. Once the CSVs are ingested into MinIO (one-time manual step), triggering the `fifa_pipeline` flow in Kestra automatically runs:
+
+```
+load → dbt run → dbt test
+```
+
+Each task runs in its own isolated Docker container, pulling the latest code directly from GitHub on every execution — ensuring reproducibility and always running against the most recent version of the pipeline.
+
+> 📝 Credentials are currently hardcoded for local development. In production, these would be stored as **Kestra Secrets**.
+
+---
+
+## 🗺️ Cloud Migration Path
+
+This project is intentionally designed to be **cloud-ready**. Migrating to GCP requires only configuration changes — no code rewrites:
+
+| Component | Local | GCP | Change required |
+|---|---|---|---|
+| Data Lake | MinIO | Google Cloud Storage | Update connection string + credentials |
+| Data Warehouse | PostgreSQL 16 | BigQuery | Update `profiles.yml` target to `bigquery` |
+| Orchestration | Kestra (local) | Kestra Cloud / Cloud Composer | Point to managed instance |
+| Dashboard | Streamlit (local) | Cloud Run | Containerize + deploy |
+| Scripts | `localhost` defaults | env vars already configured | Set env vars in Cloud Run |
+
+> The use of environment variables throughout `ingest.py` and `load.py` means zero code changes are needed when switching between local and cloud environments.
 
 ---
 
@@ -212,7 +252,7 @@ Interactive dashboard built with Streamlit — reads directly from `fct_matches`
 - [x] dbt documentation — auto-generated with lineage, served at localhost:8081
 - [x] Streamlit dashboard — interactive visualizations with dark theme
 - [x] Data quality fixes — West Germany → Germany unified, draws handled
-- [ ] Full orchestration with Kestra
+- [x] Kestra orchestration — automated flow: load → dbt run → dbt test
 - [ ] GitHub Actions CI/CD
 - [ ] README final documentation with screenshots
 
