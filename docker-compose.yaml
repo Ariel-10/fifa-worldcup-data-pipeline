@@ -1,7 +1,7 @@
 services:
   # DATA LAKE
   minio:
-    image: minio/minio # latest implicit
+    image: minio/minio:RELEASE.2025-09-07T16-13-09Z  # pinned version
     ports:
       - "9000:9000" # Python API
       - "9001:9001" # browser UI
@@ -26,8 +26,8 @@ services:
 
   # ORCHESTRATION
   kestra:
-    image: kestra/kestra:latest
-    pull_policy: always # checks updates
+    image: kestra/kestra:v0.23.28  # pinned version
+    pull_policy: if_not_present    # download - if is not cached
     user: "root" # admin perms
     command: server standalone # local mode
     ports:
