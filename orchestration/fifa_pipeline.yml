@@ -2,50 +2,51 @@ id: fifa_pipeline
 namespace: fifa
 description: "End-to-end FIFA World Cup data pipeline — load, transform, test"
 
+# reusable values — network, paths, repo
+variables:
+  repo_url: https://github.com/Ariel-10/fifa-worldcup-data-pipeline
+  network: fifa-worldcup-data-pipeline_default  # shared Docker network
+  project_dir: /tmp/project  # clone destination
+
 tasks:
 
-  # STEP 1 — Clone repo to access project files
-  - id: clone_repo
-    type: io.kestra.plugin.git.Clone
-    url: https://github.com/Ariel-10/fifa-worldcup-data-pipeline
-    branch: main
-
-  # STEP 2 — Load CSVs from MinIO in PostgreSQL
+  # STEP 1 — Load CSVs from MinIO in PostgreSQL
   - id: load
     type: io.kestra.plugin.scripts.python.Script
     docker:
-      image: python:3.12-slim
+      image: python:3.12-slim  # minimal — no git preinstalled
+      networkMode: "{{vars.network}}"  # access minio + postgres by service name
     env:
       MINIO_HOST: minio
-      MINIO_ACCESS_KEY: root
+      MINIO_ACCESS_KEY: root  # production: use Kestra Secrets
       MINIO_SECRET_KEY: rootroot
       POSTGRES_HOST: postgres
       POSTGRES_DB: fifa_dw
       POSTGRES_USER: root
       POSTGRES_PASSWORD: root
     beforeCommands:
-      - pip install minio pandas psycopg2-binary -q
-    inputFiles:
-      load.py: "{{outputs.clone_repo.outputFiles['warehouse/load.py']}}"
+      - apt-get update -q && apt-get install -y git -q  # install git — not preinstalled in slim
+      - pip install minio pandas psycopg2-binary -q  # runtime dependencies
+      - git clone {{vars.repo_url}} {{vars.project_dir}}  # fetch latest code
     script: |
-      exec(open('load.py').read())
+      exec(open('{{vars.project_dir}}/warehouse/load.py').read())  # run load script
 
-  # STEP 3 — Run dbt models
+  # STEP 2 — Run dbt models
   - id: dbt_run
     type: io.kestra.plugin.scripts.shell.Commands
     docker:
-      image: ghcr.io/dbt-labs/dbt-postgres:1.9.0
-    inputFiles:
-      profiles.yml: "{{outputs.clone_repo.outputFiles['transform/profiles.yml']}}"
+      image: ghcr.io/dbt-labs/dbt-postgres:1.9.0  # git preinstalled
+      networkMode: "{{vars.network}}"
     commands:
-      - dbt run --project-dir transform/fifa_pipeline --profiles-dir .
+      - git clone {{vars.repo_url}} {{vars.project_dir}}  # fetch latest code
+      - dbt run --project-dir {{vars.project_dir}}/transform/fifa_pipeline --profiles-dir {{vars.project_dir}}/transform
 
-  # STEP 4 — Run dbt tests
+  # STEP 3 — Run dbt tests
   - id: dbt_test
     type: io.kestra.plugin.scripts.shell.Commands
     docker:
-      image: ghcr.io/dbt-labs/dbt-postgres:1.9.0
-    inputFiles:
-      profiles.yml: "{{outputs.clone_repo.outputFiles['transform/profiles.yml']}}"
+      image: ghcr.io/dbt-labs/dbt-postgres:1.9.0  # git preinstalled
+      networkMode: "{{vars.network}}"
     commands:
-      - dbt test --project-dir transform/fifa_pipeline --profiles-dir .
+      - git clone {{vars.repo_url}} {{vars.project_dir}}  # fetch latest code
+      - dbt test --project-dir {{vars.project_dir}}/transform/fifa_pipeline --profiles-dir {{vars.project_dir}}/transform
