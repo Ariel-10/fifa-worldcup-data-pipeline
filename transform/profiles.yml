@@ -3,7 +3,7 @@ fifa_pipeline:
   outputs:
     dev:
       type: postgres
-      host: postgres
+      host: "{{ env_var('POSTGRES_HOST', 'postgres') }}"  # Docker: postgres - CI: localhost
       port: 5432
       dbname: fifa_dw
       user: root
