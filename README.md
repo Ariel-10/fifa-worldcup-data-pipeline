@@ -9,7 +9,7 @@
 ![dbt](https://img.shields.io/badge/dbt-1.11-FF694B?logo=dbt&logoColor=white)
 ![Kestra](https://img.shields.io/badge/kestra-orchestration-7C3AED?logo=kestra&logoColor=white)
 ![Streamlit](https://img.shields.io/badge/streamlit-dashboard-FF4B4B?logo=streamlit&logoColor=white)
-![CI/CD](https://github.com/Ariel-10/fifa-worldcup-data-pipeline/actions/workflows/ci-cd.yml/badge.svg)
+![CI/CD](https://github.com/Ariel-10/fifa-worldcup-data-pipeline/actions/workflows/CI-CD.yml/badge.svg)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
 ---
