@@ -9,6 +9,7 @@
 ![dbt](https://img.shields.io/badge/dbt-1.11-FF694B?logo=dbt&logoColor=white)
 ![Kestra](https://img.shields.io/badge/kestra-orchestration-7C3AED?logo=kestra&logoColor=white)
 ![Streamlit](https://img.shields.io/badge/streamlit-dashboard-FF4B4B?logo=streamlit&logoColor=white)
+![CI/CD](https://github.com/Ariel-10/fifa-worldcup-data-pipeline/actions/workflows/ci-cd.yml/badge.svg)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
 ---
@@ -114,7 +115,8 @@ fifa-worldcup-data-pipeline/
 │       └── explorer.py            ← Interactive match explorer
 │
 ├── docs/                          ← Screenshots and architecture diagram
-├── .github/workflows/             ← GitHub Actions CI/CD
+├── .github/workflows/
+│   └── ci-cd.yml                  ← CI: dbt compile / CD: Streamlit image build
 ├── docker-compose.yaml            ← All services: MinIO, PostgreSQL, Kestra, pgAdmin, dbt, Streamlit
 ├── pyproject.toml                 ← Python dependencies (uv)
 ├── .gitignore
@@ -195,7 +197,24 @@ load → dbt run → dbt test
 
 Each task runs in its own isolated Docker container, pulling the latest code directly from GitHub on every execution — ensuring reproducibility and always running against the most recent version of the pipeline.
 
+![Kestra Pipeline](docs/kestra_pipeline.jpg)
+
 > 📝 Credentials are currently hardcoded for local development. In production, these would be stored as **Kestra Secrets**.
+
+---
+
+## 🔁 CI/CD
+
+Every `git push` to `main` automatically triggers two jobs via **GitHub Actions**:
+
+| Job | What it does | Production equivalent |
+|---|---|---|
+| **dbt tests** | Runs `dbt compile` to validate SQL syntax against a temporary PostgreSQL instance | `dbt test` against a staging database |
+| **Build Streamlit image** | Builds the dashboard Docker image to verify the `Dockerfile` and all dependencies are valid | `docker push` + `gcloud run deploy` |
+
+![GitHub Actions](docs/github_actions.jpg)
+
+> 📝 Credentials are hardcoded for local development. In production, these would be stored as **GitHub Secrets** and referenced as `${{ secrets.POSTGRES_PASSWORD }}`.
 
 ---
 
@@ -253,8 +272,8 @@ Interactive dashboard built with Streamlit — reads directly from `fct_matches`
 - [x] Streamlit dashboard — interactive visualizations with dark theme
 - [x] Data quality fixes — West Germany → Germany unified, draws handled
 - [x] Kestra orchestration — automated flow: load → dbt run → dbt test
-- [ ] GitHub Actions CI/CD
-- [ ] README final documentation with screenshots
+- [x] GitHub Actions CI/CD — dbt compile + Streamlit image build on every push
+- [ ] README screenshots — Kestra topology, GitHub Actions green run
 
 ---
 
