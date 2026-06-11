@@ -2,7 +2,7 @@ import streamlit as st
 
 # match explorer — filter by year
 def render_match_explorer(df):
-    st.subheader("🔍 Match Explorer")
+    st.subheader("Match Explorer")
 
     years = sorted(df["year"].unique(), reverse=True)
     selected_year = st.selectbox("Select a World Cup year", years)
@@ -11,9 +11,9 @@ def render_match_explorer(df):
 
     # tournament summary — same card style as metrics
     col1, col2, col3 = st.columns(3)
-    col1.metric("🌍 Host Country", filtered["host_country"].iloc[0])
-    col2.metric("🏆 Champion", filtered["champion"].iloc[0])
-    col3.metric("⚽ Total Goals", int(filtered["total_goals"].sum()))
+    col1.metric("Host Country", filtered["host_country"].iloc[0])
+    col2.metric("Champion", filtered["champion"].iloc[0])
+    col3.metric("Total Goals", int(filtered["total_goals"].sum()))
 
     st.markdown("<br>", unsafe_allow_html=True)
 

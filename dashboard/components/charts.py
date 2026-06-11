@@ -26,7 +26,7 @@ def render_titles_and_goals(df):
 
     with col_left:
         # bar chart — titles per country
-        st.subheader("🏆 Titles by Country")
+        st.subheader("Titles by Country")
         champions = (
             df.drop_duplicates(subset="year")[["year", "champion"]]
             .groupby("champion")
@@ -49,7 +49,7 @@ def render_titles_and_goals(df):
 
     with col_right:
         # line chart — total goals per tournament
-        st.subheader("🥅 Goals per World Cup")
+        st.subheader("Goals per World Cup")
         goals_per_year = (
             df.groupby("year")["total_goals"]
             .sum()
@@ -73,7 +73,7 @@ def render_wins_and_stages(df):
 
     with col_left2:
         # bar chart — top 10 teams by wins
-        st.subheader("🥇 Top 10 Teams by Wins")
+        st.subheader("Top 10 Teams by Wins")
         top_teams = (
             df[df["winning_team"].notna() & (df["winning_team"] != "Draw")]
             .groupby("winning_team")
@@ -95,7 +95,7 @@ def render_wins_and_stages(df):
 
     with col_right2:
         # pie chart — matches per stage
-        st.subheader("📊 Matches by Stage")
+        st.subheader("Matches by Stage")
         stages = (
             df.groupby("stage")
             .size()

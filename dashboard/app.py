@@ -5,7 +5,7 @@ from components.charts import render_titles_and_goals, render_wins_and_stages
 from components.explorer import render_match_explorer
 
 # page config
-st.set_page_config(page_title="FIFA World Cup Dashboard", page_icon="⚽", layout="wide")
+st.set_page_config(page_title="FIFA World Cup Dashboard", page_icon="🏆", layout="wide")
 
 # load CSS — global styles
 with open("styles/main.css") as f:
@@ -21,7 +21,7 @@ df = load_data()
 # header — hero section
 st.markdown("""
     <div class="hero">
-        <h1>⚽ FIFA World Cup Historical Dashboard</h1>
+        <h1>FIFA World Cup Historical Dashboard</h1>
         <p>Historical analysis of FIFA World Cups — 1930 to 2018</p>
     </div>
 """, unsafe_allow_html=True)
